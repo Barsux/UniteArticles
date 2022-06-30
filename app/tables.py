@@ -19,3 +19,4 @@ class User(Base):
     email = sa.Column(sa.Text, unique=True)
     username = sa.Column(sa.Text, unique=True)
     password = sa.Column(sa.Text)
+    role = sa.Column(sa.Text)

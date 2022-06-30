@@ -10,6 +10,9 @@ class Settings(BaseSettings):
     server_port: int = 8080
     database_url: str = f"sqlite:///{databasedir}/database.sqlite3"
     #database_url: str = f"sqlite:///./database.sqlite3"
+    jwt_secret: str = "gUD1MiVHuNPdTrdAX0Qu_pNkgcRJ3Ni2selzPpjPULc"
+    jwt_algorithm: str = "HS256"
+    jwt_ttl: int = 3600
 
 settings = Settings(
     _env_file='.env',
