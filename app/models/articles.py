@@ -21,7 +21,6 @@ class Article(ArticleBase):
         orm_mode = True
 
 
-
 class ArticleCreate(ArticleBase):
     pass
 

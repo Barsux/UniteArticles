@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from app import tables
 from app.database import get_session
 from app.models.articles import ArticleStatus, ArticleCreate, ArticleUpdate
-from app.models.auth import User, UserRole
+from app.models.auth import User, UserRole, BaseComment, CommentStatus
 
 class ArticlesService:
     def __init__(self, session: Session = Depends(get_session)):
@@ -79,7 +79,26 @@ class ArticlesService:
         self.session.commit()
         return article
 
+    def leave_comment(self, user:User, article_id: int, comment: BaseComment):
+        db_comment = tables.Comment()
+        db_comment.text = comment.text
+        db_comment.user_id = user.id
+        db_comment.article_id = article_id
+        db_comment.status = CommentStatus.PUBLICATED
+        self.session.add(db_comment)
+        self.session.commit()
+        return db_comment
+
+    def get_comments(self, article_id):
+        query = self.session.query(tables.Comment)
+        query = query.filter_by(article_id=article_id)
+        query = query.filter_by(status=CommentStatus.PUBLICATED)
+        comments = query.all()
+        return comments
+
     def delete_article(self, user: User, article_id: int):
         article = self._get_by_id(article_id)
+        if article.user_id != user.id and user.role != UserRole.ADMIN:
+            self.raise_401_with_text("You can't do that")
         self.session.delete(article)
         self.session.commit()

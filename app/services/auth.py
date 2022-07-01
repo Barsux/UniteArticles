@@ -2,7 +2,7 @@ import time
 
 import sqlalchemy.exc
 
-from app.models.auth import User, UserCreate, UserRole, Token
+from app.models.auth import User, UserCreate, Roles, UserRole, Token
 from app.settings import settings
 from passlib.hash import bcrypt
 from fastapi import HTTPException, status, Depends
@@ -138,3 +138,17 @@ class AuthService:
         except Exception:
             self.raise_401_with_text("Fuck you!")
         return user_data
+
+    def change_role(self, user: User, user_id: int, role: UserRole, replace: bool):
+        db_user = self._get_by_id(user_id)
+        if Roles.compare_role(db_user.role, role):
+            raise self.raise_401_with_text("You not allowed to do that")
+        if not Roles.compare_role(user.role, UserRole.ADMIN):
+            raise self.raise_401_with_text("You not allowed to do that")
+        else:
+            if replace or role == UserRole.BANNED:
+                db_user.role = role
+            else:
+                db_user.role = Roles.add_role(db_user.role, role)
+        self.session.commit()
+        return db_user

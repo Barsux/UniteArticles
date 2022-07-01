@@ -4,6 +4,7 @@ from fastapi import Depends
 from fastapi import Response
 from fastapi import status
 from app.models.articles import Article, ArticleStatus, ArticleCreate, ArticleUpdate
+from app.models.auth import BaseComment, Comment
 from app.services.articles import ArticlesService
 from app.services.auth import User, get_curr_user
 
@@ -45,7 +46,21 @@ def update_article(
         service: ArticlesService = Depends(),
 ):
     return service.update_article(user, article_id, article_data)
-
+@router.get("/{article_id}/comment", response_model=List[Comment])
+def get_comments(
+        article_id: int,
+        service: ArticlesService = Depends(),
+        user: User = Depends(get_curr_user)
+):
+    return service.get_comments(article_id)
+@router.put("/{article_id}/comment", response_model=Comment)
+def leave_comment(
+        article_id: int,
+        comment: BaseComment,
+        service: ArticlesService = Depends(),
+        user: User = Depends(get_curr_user)
+):
+    return service.leave_comment(user, article_id, comment)
 
 @router.delete("/{article_id}")
 def delete_article(

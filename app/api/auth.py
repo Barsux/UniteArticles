@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordRequestForm
-from app.models.auth import UserCreate, User, Token
+from app.models.auth import UserCreate, User, Token, Roles, UserRole
 from app.services.auth import AuthService, get_curr_user
 
 router = APIRouter(
@@ -25,6 +25,15 @@ def sign_in(
         form_data.password,
     )
 
+@router.put('/role', response_model=User)
+def change_role(
+        replace: bool,
+        role: UserRole,
+        user_id: int,
+        user: User = Depends(get_curr_user),
+        service: AuthService = Depends()
+):
+    return service.change_role(user, user_id, role, replace)
 @router.get('/user', response_model=User)
 def get_user(user: User = Depends(get_curr_user)):
     return user
