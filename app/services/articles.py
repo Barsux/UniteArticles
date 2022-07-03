@@ -132,7 +132,9 @@ class ArticlesService:
     def delete_article(self, user: User, article_id: int):
         article = self._get_by_id(article_id)
         if article.user_id != user.id and Roles.compare_role(user.role, UserRole.ADMIN):
-            self.raise_401_with_text("You can't do that")
+            self.raise_401_with_text(NOT_ALLOWED)
+        elif article.user_id == user.id and article.status != ArticleStatus.DRAFT:
+            self.raise_401_with_text(NOT_ALLOWED)
         self.session.delete(article)
         self.session.commit()
 
