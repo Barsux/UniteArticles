@@ -70,6 +70,9 @@ class Comment(BaseComment):
     article_id: int
     status:CommentStatus
 
+    class Config:
+        orm_mode = True
+
 class BaseUser(BaseModel):
     email: str
     username: str
