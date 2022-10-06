@@ -11,5 +11,7 @@ if __name__ == "__main__":
         'main:app',
         host=settings.server_host,
         port=settings.server_port,
+        ssl_keyfile=settings.ssl_keyfile,
+        ssl_certfile=settings.ssl_certfile,
         reload=True
     )

@@ -6,7 +6,7 @@ Base = declarative_base()
 class Article(Base):
     __tablename__ = "articles"
     id = sa.Column(sa.Integer, primary_key=True)
-    user_id = sa.Column(sa.Integer, sa.ForeignKey('users.id'))
+    user_ids = sa.Column(sa.String)
     creation_date = sa.Column(sa.Date)
     last_used_date = sa.Column(sa.Date)
     status = sa.Column(sa.String)
@@ -14,6 +14,9 @@ class Article(Base):
     text = sa.Column(sa.String)
     votes = sa.Column(sa.Integer)
     summary_mark = sa.Column(sa.Numeric)
+    tags = sa.Column(sa.String)
+
+
 
 class User(Base):
     __tablename__ = "users"
@@ -22,6 +25,7 @@ class User(Base):
     username = sa.Column(sa.Text, unique=True)
     password = sa.Column(sa.Text)
     role = sa.Column(sa.Text)
+    bannedUntil = sa.Column(sa.Text)
 
 class Comment(Base):
     __tablename__ = "comments"
@@ -37,3 +41,8 @@ class Mark(Base):
     user_id = sa.Column(sa.Integer, sa.ForeignKey('users.id'))
     article_id = sa.Column(sa.Integer, sa.ForeignKey('articles.id'))
     mark = sa.Column(sa.Integer)
+
+class Tag(Base):
+    __tablename__ = "tags"
+    id = sa.Column(sa.Integer, primary_key=True)
+    tag = sa.Column(sa.Text, unique=True)

@@ -53,3 +53,12 @@ def update_user(
         service: AuthService = Depends()
 ):
     return service.update_user(user, user_data)
+
+@router.put('/user/{user_id}/ban', response_model=User)
+def ban_user(
+        time: int,
+        user_id: int,
+        user: User = Depends(get_curr_user),
+        service: AuthService = Depends()
+):
+    return service.ban_user(user, user_id, time)

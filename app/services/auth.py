@@ -2,7 +2,7 @@ import time
 
 import sqlalchemy.exc
 
-from app.models.auth import User, UserCreate, Roles, UserRole, Token
+from app.models.auth import User, UserCreate, UserRole, Token
 from app.settings import settings
 from passlib.hash import bcrypt
 from fastapi import HTTPException, status, Depends
@@ -10,6 +10,7 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
 from pydantic import ValidationError
 from app import tables
+from app.base import SQL_Divider
 from datetime import datetime
 from app.database import get_session
 from sqlalchemy.orm import Session
@@ -136,19 +137,32 @@ class AuthService:
         try:
             self.session.commit()
         except Exception:
-            self.raise_401_with_text("Fuck you!")
+            self.raise_401_with_text("You can't do that")
         return user_data
 
     def change_role(self, user: User, user_id: int, role: UserRole, replace: bool):
         db_user = self._get_by_id(user_id)
-        if Roles.compare_role(db_user.role, role):
+        if SQL_Divider.check_is_inside(user.role, role):
             raise self.raise_401_with_text("You not allowed to do that")
-        if not Roles.compare_role(user.role, UserRole.ADMIN):
+        if not SQL_Divider.check_is_inside(user.role, UserRole.ADMIN):
             raise self.raise_401_with_text("You not allowed to do that")
         else:
             if replace or role == UserRole.BANNED:
                 db_user.role = role
             else:
-                db_user.role = Roles.add_role(db_user.role, role)
+                db_user.role = SQL_Divider.add_element(db_user.role, role)
         self.session.commit()
         return db_user
+
+    def ban(self, user: User, user_id: int, time):
+        db_user = self._get_by_id(user_id)
+        self.change_role(user, user_id, UserRole.BANNED, True)
+        db_user.bannedUntil = time.time() + time * 60
+
+    def checkBanned(self, user: User):
+        db_user = self._get_by_id(user.id)
+        if db_user.role == UserRole.BANNED:
+            if db_user.bannedUntil < time.time():
+                self.change_role(user, user.id, UserRole.DEFAULT, True)
+            else:
+                self.raise_401_with_text("You are banned")

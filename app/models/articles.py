@@ -26,6 +26,20 @@ class Mark(BaseMark):
         orm_mode = True
 
 
+class BaseTag(BaseModel):
+    tag: str
+    @validator('tag')
+    def validate_name(cls, tag):
+        if len(tag) < 3:
+            raise ValidationError
+        return tag
+
+class Tag(BaseTag):
+    id: int
+
+    class Config:
+        orm_mode = True
+
 class ArticleBase(BaseModel):
     creation_date: date
     last_used_date: date
@@ -34,6 +48,7 @@ class ArticleBase(BaseModel):
     votes: int
     header: str
     text: str
+    user_ids: str
 
 class Article(ArticleBase):
     id: int
@@ -49,3 +64,10 @@ class ArticleCreate(ArticleBase):
 
 class ArticleUpdate(ArticleBase):
     pass
+
+class ArticleSearch(BaseModel):
+    title: str = None
+    text: str = None
+    authors: str = None
+    tags: str = None
+    mark: str = None
