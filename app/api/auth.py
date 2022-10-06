@@ -25,6 +25,16 @@ def sign_in(
         form_data.password,
     )
 
+@router.post('/sign-in-git', response_model=Token)
+def sign_in_github(
+        form_data: OAuth2PasswordRequestForm = Depends(),
+        service: AuthService = Depends()
+):
+    return service.login(
+        form_data.username,
+        form_data.password,
+    )
+
 @router.put('/role', response_model=User)
 def change_role(
         replace: bool,

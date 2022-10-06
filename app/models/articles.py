@@ -8,9 +8,6 @@ class ArticleStatus(str, Enum):
     APPROWED = "APPROWED"
     DECLINED = "DECLINED"
 
-class BaseMark(BaseModel):
-    mark: int
-
     @validator('mark')
     def validate_mark(cls, mark):
         if mark not in range(0, 11):
